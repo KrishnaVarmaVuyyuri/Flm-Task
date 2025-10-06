@@ -1,23 +1,18 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-
-export const fetchCompanies = createAsyncThunk("companies/fetch", async () => {
-  const res = await fetch("/companies.json");
-  return res.json();
-});
+import { createSlice } from "@reduxjs/toolkit";
+import companiesData from "../../public/companies.json"; 
 
 const companiesSlice = createSlice({
   name: "companies",
   initialState: {
-    data: [],
-    filtered: [],
-    status: "idle",
+    data: companiesData,
+    filtered: companiesData,
     search: "",
     location: "All",
     industry: "All",
     empNo: "Any",
     sort: "name-asc",
     page: 1,
-    perPage:6,
+    perPage: 6,
   },
   reducers: {
     setSearch: (state, action) => {
@@ -45,53 +40,41 @@ const companiesSlice = createSlice({
     applyFilters: (state) => {
       let result = [...state.data];
 
-
+  
       if (state.search) {
-        result = result.filter(c =>
+        result = result.filter((c) =>
           c.name.toLowerCase().includes(state.search.toLowerCase())
         );
       }
 
-
+      // 📍 location
       if (state.location !== "All") {
-        result = result.filter(c => c.location === state.location);
+        result = result.filter((c) => c.location === state.location);
       }
 
-
+      // 🏭 industry
       if (state.industry !== "All") {
-        result = result.filter(c => c.industry === state.industry);
+        result = result.filter((c) => c.industry === state.industry);
       }
 
-      // 👥 employees filter
+      // 👥 employees
       if (state.empNo !== "Any") {
-        if (state.empNo === "0-10") 
-          {
+        if (state.empNo === "0-10") {
           result = result.filter((c) => c.employees <= 10);
-          } 
-        else if (state.empNo === "11-50")
-          {
+        } else if (state.empNo === "11-50") {
           result = result.filter((c) => c.employees > 10 && c.employees <= 50);
-          } 
-        else if (state.empNo === "51-100")
-          {
+        } else if (state.empNo === "51-100") {
           result = result.filter((c) => c.employees > 50 && c.employees <= 100);
-          } 
-        else if (state.empNo === "101-200") 
-          {
+        } else if (state.empNo === "101-200") {
           result = result.filter((c) => c.employees > 100 && c.employees <= 200);
-          }
-        else if (state.empNo === "201-1000") 
-          {
+        } else if (state.empNo === "201-1000") {
           result = result.filter((c) => c.employees > 200 && c.employees <= 1000);
-          }
-        else if(state.empNo === "1000+")
-          {
-          result = result.filter((c) => c.employees > 1000 )
-          }
+        } else if (state.empNo === "1000+") {
+          result = result.filter((c) => c.employees > 1000);
+        }
       }
 
-
-
+      // 🔡 sorting
       if (state.sort === "name-asc") {
         result.sort((a, b) => a.name.localeCompare(b.name));
       } else if (state.sort === "name-desc") {
@@ -99,18 +82,18 @@ const companiesSlice = createSlice({
       }
 
       state.filtered = result;
-    }
+    },
   },
-  extraReducers: (builder) => {
-    builder.addCase(fetchCompanies.fulfilled, (state, action) => {
-      state.data = action.payload;
-      state.filtered = action.payload;
-      state.status = "done";
-    });
-  }
 });
 
-export const { setSearch, setLocation, setIndustry, setSort, setPage, applyFilters, setEmpNo } =
-  companiesSlice.actions;
+export const {
+  setSearch,
+  setLocation,
+  setIndustry,
+  setSort,
+  setPage,
+  applyFilters,
+  setEmpNo,
+} = companiesSlice.actions;
 
 export default companiesSlice.reducer;
